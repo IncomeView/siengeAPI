@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  sienge:
+    build: .
+    container_name: sienge_api
+    env_file: scripts/.env
+    volumes:
+      - ./scripts:/scripts
+    command: python /scripts/main.py
