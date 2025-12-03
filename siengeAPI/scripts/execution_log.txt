@@ -194,3 +194,13 @@ AttributeError: type object 'datetime.datetime' has no attribute 'datetime'
 
 [5 rows x 15 columns]
 [2025-12-02 12:24:07] [DB] Dados salvos com sucesso no Postgres.
+[2025-12-03 12:18:11] [api_financialCategories] Transformação concluída, linhas expandidas: 296
+[2025-12-03 12:18:12] [api_financialCategories]   id1                fc1  ... flImposto                           upDate
+0   1  ENTRADAS/RECEITAS  ...         N 2025-12-03 09:18:11.988109-03:00
+1   1  ENTRADAS/RECEITAS  ...         N 2025-12-03 09:18:11.988109-03:00
+2   1  ENTRADAS/RECEITAS  ...         N 2025-12-03 09:18:11.988109-03:00
+3   1  ENTRADAS/RECEITAS  ...         N 2025-12-03 09:18:11.988109-03:00
+4   1  ENTRADAS/RECEITAS  ...         N 2025-12-03 09:18:11.988109-03:00
+
+[5 rows x 15 columns]
+[2025-12-03 12:18:15] [DB] Dados salvos com sucesso no Postgres.

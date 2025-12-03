@@ -2,11 +2,6 @@ import requests
 import pandas as pd
 from config import SIENGE_USERNAME, SIENGE_PASSWORD
 
-import requests
-import pandas as pd
-from config import SIENGE_USERNAME, SIENGE_PASSWORD
-
-
 def get_financialCategories():
     url = "https://api.sienge.com.br/olimpo/public/api/v1/payment-categories"
     response = requests.get(url, auth=(SIENGE_USERNAME, SIENGE_PASSWORD))
