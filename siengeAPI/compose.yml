@@ -26,3 +26,14 @@ services:
     command: python /scripts/api_financialCategory.py
     depends_on:
       - sienge_main
+
+  sienge_refresh_mvw:
+    build: .
+    container_name: sienge_refresh_mvw
+    env_file: scripts/.env
+    volumes:
+      - ./scripts:/scripts
+    command: python /scripts/mvw_atualizacao.py
+    depends_on:
+      - sienge_main
+
