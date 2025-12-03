@@ -1,10 +1,28 @@
-version: "3.9"
-
 services:
-  sienge:
+  sienge_main:
     build: .
-    container_name: sienge_api
+    container_name: sienge_main
     env_file: scripts/.env
     volumes:
       - ./scripts:/scripts
     command: python /scripts/main.py
+
+  api_customers:
+    build: .
+    container_name: api_customers
+    env_file: scripts/.env
+    volumes:
+      - ./scripts:/scripts
+    command: python /scripts/api_customers.py
+    depends_on:
+      - sienge_main   # opcional: só sobe depois do principal
+
+  api_financialcategory:
+    build: .
+    container_name: api_financialcategory
+    env_file: scripts/.env
+    volumes:
+      - ./scripts:/scripts
+    command: python /scripts/api_financialCategory.py
+    depends_on:
+      - sienge_main
