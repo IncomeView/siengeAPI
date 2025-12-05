@@ -1,51 +1,80 @@
 services:
   sienge_main:
+    profiles: ["full"]
     build: .
     container_name: sienge_main
     env_file: scripts/.env
     volumes:
       - ./scripts:/scripts
-    command: python /scripts/main.py
+      - "/mnt/c/Users/Moacir Faria/Olimpo Participacoes/OLP - CONTROLE/ANALISES/bancos_dados/Logs.xlsx:/scripts/Logs.xlsx"
+      - "/mnt/c/Users/Moacir Faria/Olimpo Participacoes/OLP - CONTROLE/BASES TRABALHADAS/JSON:/scripts/JSON"
+    command: python -u /scripts/main.py
 
   api_customers:
+    profiles: ["isolated"]
     build: .
     container_name: api_customers
     env_file: scripts/.env
     volumes:
       - ./scripts:/scripts
-    command: python /scripts/api_customers.py
+    command: python -u /scripts/api_customers.py
     depends_on:
       - sienge_main   # opcional: só sobe depois do principal
 
   api_financialcategory:
+    profiles: ["isolated"]
     build: .
     container_name: api_financialcategory
     env_file: scripts/.env
     volumes:
       - ./scripts:/scripts
-    command: python /scripts/api_financialCategory.py
+    command: python -u /scripts/api_financialCategory.py
     depends_on:
       - sienge_main
 
-  sienge_refresh_mvw:
+  api_outcome:
+    profiles: ["isolated"]
     build: .
-    container_name: sienge_refresh_mvw
+    container_name: api_outcome
     env_file: scripts/.env
     volumes:
       - ./scripts:/scripts
-    command: python /scripts/mvw_atualizacao.py
+      - "/mnt/c/Users/Moacir Faria/Olimpo Participacoes/OLP - CONTROLE/BASES TRABALHADAS/JSON:/scripts/JSON"
+    command: python -u /scripts/api_outcome.py
+    depends_on:
+      - sienge_main
+
+  api_bankMovement:
+    profiles: ["isolated"]
+    build: .
+    container_name: api_bankMovement
+    env_file: scripts/.env
+    volumes:
+      - ./scripts:/scripts
+      - "/mnt/c/Users/Moacir Faria/Olimpo Participacoes/OLP - CONTROLE/BASES TRABALHADAS/JSON:/scripts/JSON"
+    command: python -u /scripts/api_bankMovement.py
     depends_on:
       - sienge_main
 
   sienge_excel_bu:
+    profiles: ["isolated"]
     build: .
     container_name: sienge_excel_bu
     env_file: scripts/.env
     volumes:
       - ./scripts:/scripts   # pasta com Logs.xlsx e .env
-      - /mnt/c/Users/Moacir Faria/Olimpo Participacoes/OLP - CONTROLE/ANALISES/bancos_dados/Logs.xlsx:/scripts/Logs.xlsx
-    command: python /scripts/BU_businessUnits.py
+      - "/mnt/c/Users/Moacir Faria/Olimpo Participacoes/OLP - CONTROLE/ANALISES/bancos_dados/Logs.xlsx:/scripts/Logs.xlsx"
+    command: python -u /scripts/BU_businessUnits.py
     depends_on:
       - sienge_main
 
-
+  sienge_refresh_mvw:
+    profiles: ["isolated"]
+    build: .
+    container_name: sienge_refresh_mvw
+    env_file: scripts/.env
+    volumes:
+      - ./scripts:/scripts
+    command: python -u /scripts/mvw_atualizacao.py
+    depends_on:
+      - sienge_main

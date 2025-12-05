@@ -9,7 +9,7 @@ BASE_URL = "https://api.sienge.com.br/olimpo/public/api/v1/customers"
 
 def log_message(module: str, message: str):
     timestamp = datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{timestamp}] [{module}] {message}")
+    print(f"[{timestamp}] [{module}] {message}", flush=True)
 
 def normalize_customers(df):
     """Normaliza os campos aninhados (phones, addresses, spouse)."""
@@ -55,8 +55,7 @@ def main():
         log_message("sienge_customers", "Resumo da execução:")
         log_message(
             "sienge_customers",
-            f"Customers - status: ✅ ok - início: {started_at} - tempo total: {elapsed:.2f}s - linhas: {len(df_final)}"
-        )
+            f"Customers - status: ✅ ok - início: {started_at} - tempo total: {elapsed:.2f}s - linhas: {len(df_final)}")
     except Exception as e:
         elapsed = time.time() - global_start
         log_message("sienge_customers", f"❌ Erro ao processar clientes após {elapsed:.2f}s: {e}")

@@ -17,5 +17,5 @@ def save_dataframe(df, table_name, schema):
         else:
             conn.execute(text(f'TRUNCATE TABLE "{schema}"."{table_name}" RESTART IDENTITY CASCADE'))
             df.to_sql(table_name, conn, schema=schema, if_exists="append", index=False)
-    print(f"Dados importados com sucesso na tabela {schema}.{table_name}!")
+#    print(f"Dados importados com sucesso na tabela {schema}.{table_name}!")
 

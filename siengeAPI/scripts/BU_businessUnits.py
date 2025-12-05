@@ -1,4 +1,4 @@
-import logging, time, traceback
+import time, traceback
 import pandas as pd
 from openpyxl import load_workbook
 from sqlalchemy import inspect, text
@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 
 def log_message(module: str, message: str):
     timestamp = datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{timestamp}] [{module}] {message}")
+    print(f"[{timestamp}] [{module}] {message}", flush=True)
 
 def carregar_excel(excel_file, sheet_name, table_name):
     """Lê uma tabela nomeada de um Excel e retorna um DataFrame."""

@@ -1,14 +1,14 @@
-import time, traceback, requests, pandas as pd
+import time, requests, pandas as pd
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from db_utils import save_dataframe
-from config import BASE_URL, SIENGE_USERNAME, SIENGE_PASSWORD, POSTGRES_SCHEMA
+from config import SIENGE_USERNAME, SIENGE_PASSWORD, POSTGRES_SCHEMA
 
 BASE_URL = "https://api.sienge.com.br/olimpo/public/api/v1/payment-categories"
 
 def log_message(module: str, message: str):
     timestamp = datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%Y-%m-%d %H:%M:%S")
-    print(f"[{timestamp}] [{module}] {message}")
+    print(f"[{timestamp}] [{module}] {message}", flush=True)
 
 def fetch_financialCategories():
     """Busca categorias financeiras da API Sienge."""
