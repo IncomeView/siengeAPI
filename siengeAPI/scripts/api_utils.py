@@ -1,4 +1,4 @@
-import requests, json, os
+import requests, time
 import pandas as pd
 from pathlib import Path
 from datetime import datetime
@@ -41,70 +41,37 @@ def fetch_limt200(BASE_URL, SIENGE_USERNAME, SIENGE_PASSWORD, limit=200, module=
     return df
 
 
-MAX_SIZE_MB = 768
-def fetch_limtFull(BASE_URL, SIENGE_USERNAME, SIENGE_PASSWORD, module, json_path_env=None, timeout=300):
+def fetch_limtFull(BASE_URL, SIENGE_USERNAME, SIENGE_PASSWORD, module="apiCall", timeout=300):
+    """
+    - BASE_URL: endpoint da API (sem parâmetros de offset)
+    - SIENGE_USERNAME / SIENGE_PASSWORD: credenciais
+    - module: nome para logs
+    - timeout: tempo máximo da requisição
+    Retorna um DataFrame com todos os registros.
+    """
+    start_time = time.time()
     all_data = []
-    file_index = 1
     offset = 0
 
-    while True:
-        try:
-            log_message(module, f"🔗 Conexão com API {module} ... offset={offset}")
-            response = requests.get(
-                f"{BASE_URL}&offset={offset}",  # ajuste conforme paginação suportada pela API
-                auth=(SIENGE_USERNAME, SIENGE_PASSWORD),
-                timeout=timeout)
-            response.raise_for_status()
-            log_message(module, "✅ Dados via API acessados com sucesso")
-        except requests.exceptions.RequestException as e:
-            log_message(module, f"❌ Erro na requisição: {e}")
-            break
-        try:
-            dados = response.json()
-        except Exception:
-            log_message(module, f"❌ Resposta não é JSON válido: {response.text}")
-            break
-        if not dados or "data" not in dados or not dados["data"]:
-            log_message(module, "❌ API respondeu, mas não retornou dados.")
-            break
+    try:
+        log_message(module, f"🔗 Conexão com API {module} ... offset={offset}")
+        response = requests.get(f"{BASE_URL}&offset={offset}", auth=(SIENGE_USERNAME, SIENGE_PASSWORD), timeout=timeout)
+        response.raise_for_status()
+        elapsed = time.time() - start_time
+        log_message(module, f"✅ Dados via API acessados com sucesso | Tempo: {elapsed:.2f}s")
+    except requests.exceptions.RequestException as e:
+        log_message(module, f"❌ Erro na requisição: {e}")
+        return pd.DataFrame()
+    try:
+        dados = response.json()
+    except Exception:
+        log_message(module, f"❌ Resposta não é JSON válido: {response.text}")
+        return pd.DataFrame()
+    if not dados or "data" not in dados or not dados["data"]:
+        log_message(module, "⚠️ API respondeu sem campo 'data'. Encerrando coleta.")
+        return pd.DataFrame()
+    all_data.extend(dados["data"])
+    elapsed = time.time() - start_time
+    log_message(module, f"📊 Registros acumulados: {len(all_data)} | Tempo total: {elapsed:.2f}s")
 
-        # acumula dados
-        all_data.extend(dados["data"])
-
-        # cria DataFrame parcial para medir tamanho
-        df = pd.DataFrame(all_data)
-        size_mb = df.memory_usage(deep=True).sum() / (1024**2)
-        log_message(module, f"📊 Registros acumulados: {len(df)} | Tamanho: {size_mb:.2f} MB")
-
-        # se atingiu limite, salva arquivo e reinicia acumulador
-        if size_mb >= MAX_SIZE_MB:
-            if json_path_env:
-                caminho_base = Path(os.getenv(json_path_env, f"/scripts/{module}.json"))
-                caminho = caminho_base.with_name(f"{module}.{file_index}.json")
-                try:
-                    with open(caminho, "w", encoding="utf-8") as f:
-                        json.dump({"data": all_data}, f, ensure_ascii=False)
-                    log_message(module, f"Arquivo JSON salvo em: {caminho}")
-                except Exception as e:
-                    log_message(module, f"⚠️ Falha ao salvar JSON: {e}")
-            # prepara para próximo arquivo
-            file_index += 1
-            offset += len(all_data)
-            all_data = []  # limpa acumulador para próximo bloco
-            continue
-        else:
-            # fim dos dados, salva último arquivo
-            if json_path_env and all_data:
-                caminho_base = Path(os.getenv(json_path_env, f"/scripts/{module}.json"))
-                caminho = caminho_base.with_name(f"{module}.{file_index}.json")
-                try:
-                    with open(caminho, "w", encoding="utf-8") as f:
-                        json.dump({"data": all_data}, f, ensure_ascii=False)
-                    log_message(module, f"Arquivo JSON salvo em: {caminho}")
-                except Exception as e:
-                    log_message(module, f"⚠️ Falha ao salvar JSON: {e}")
-            break
-
-    # retorna DataFrame consolidado
-    return pd.DataFrame(all_data)
-
+    return pd.DataFrame({"data": all_data})

@@ -1,6 +1,6 @@
 import time, traceback
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from db_utils import save_dataframe, get_engine
@@ -33,11 +33,8 @@ def normalize_outcome(df_raw: pd.DataFrame):
 
     # Confere se 'data' existe; se não, nada a fazer
     if "data" not in df_raw.columns:
-        log_message("sienge_outcome", "❌ JSON Outcome não contém coluna 'data'.")
+        log_message("outcome", "❌ JSON Outcome não contém coluna 'data'.")
         return tuple(pd.DataFrame([]) for _ in range(8))
-    # Explode a coluna 'data' (lista) em linhas
-#    df_exp = df_raw.explode("data").reset_index(drop=True)
-#    df_exp = df_exp.loc[df_exp["data"].apply(lambda x: isinstance(x, dict))]
     # Normaliza o conteúdo de 'data' para colunas
     base_OC = pd.json_normalize(df_raw["data"]).copy()
     base_OC["creation_date"] = datetime.now(ZoneInfo("America/Sao_Paulo"))
@@ -162,18 +159,18 @@ def main():
         url = build_url(
             subdomain="olimpo",
             start_date="2014-01-01",
-            end_date="2061-01-01",
+            end_date="2065-01-01",
             selection_type="D",
             correction_indexer_id=0,
-            correction_date="2025-12-31",
+            correction_date=(datetime.now(ZoneInfo("America/Sao_Paulo")) + timedelta(days=30)).strftime("%Y-%m-%d"),
             with_authorizations=True,
             with_bank_movements=True)
 
         # 2) Busca JSON e DataFrame bruto via api_utils
         df_raw = fetch_limtFull(BASE_URL=url, SIENGE_USERNAME=SIENGE_USERNAME, SIENGE_PASSWORD=SIENGE_PASSWORD, 
-                                module="sienge_outcome", json_path_env="JSON_PATH_OUTCOME", timeout=300)
+                                module="outcome", timeout=300)                                                              #, json_path_env="JSON_PATH_OUTCOME"
         if df_raw.empty:
-            log_message("sienge_outcome", "❌ Nenhum dado processado para Outcome.")
+            log_message("outcome", "❌ Nenhum dado processado para Outcome.")
             return
         # 3) Normaliza
         dfs = normalize_outcome(df_raw)
@@ -184,14 +181,14 @@ def main():
         elapsed = time.time() - global_start
         status_global = "✅ ok" if all(r["status"] == "✅ ok" for r in resumo) else "⚠️ parcial"
         linhas_total = sum(r["rows"] for r in resumo if r["rows"])
-        log_message("sienge_outcome", "Resumo da execução consolidado outcome:")
-        log_message("sienge_outcome",
+        log_message("outcome", "Resumo da execução consolidado outcome:")
+        log_message("outcome",
             f"Outcome - status: {status_global} - início: {started_at} - tempo total: {elapsed:.2f}s - linhas totais: {linhas_total}")
 
     except Exception as e:
         elapsed = time.time() - global_start
-        log_message("sienge_outcome", f"❌ Erro ao processar Outcome após {elapsed:.2f}s: {e}")
-        log_message("sienge_outcome", traceback.format_exc())
+        log_message("outcome", f"❌ Erro ao processar Outcome após {elapsed:.2f}s: {e}")
+        log_message("outcome", traceback.format_exc())
 
 if __name__ == "__main__":
     main()

@@ -31,7 +31,7 @@ def normalize_bankMovement(df_raw: pd.DataFrame):
     # Confere se 'data' existe; se não, nada a fazer
     if "data" not in df_raw.columns:
         log_message("bankMovement", "❌ JSON bankMovement não contém coluna 'data'.")
-        return tuple(pd.DataFrame([]) for _ in range(8))
+        return tuple(pd.DataFrame([]) for _ in range(4))
 
     base_BM = pd.json_normalize(df_raw['data']).copy()
     base_BM['creation_date'] = datetime.now(ZoneInfo("America/Sao_Paulo"))
@@ -61,7 +61,6 @@ def normalize_bankMovement(df_raw: pd.DataFrame):
 
     # ajustes finais
     base_BM = base_BM.drop(columns=['financialCategories', 'departamentCosts', 'buldingCosts'])
-
     return (
         base_BM,
         financialCategories,
@@ -102,17 +101,15 @@ def save_bankMovement_tables(engine, dfs, module="bankMovement"):
 def main():
     global_start = time.time()
     started_at = datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%Y-%m-%d %H:%M:%S")
-
     try:
         # 1) URL
         url = build_url(
             subdomain="olimpo",
             start_date="2014-01-01",
-            end_date="2061-01-01")
-
+            end_date=datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%Y-%m-%d"))
         # 2) Busca JSON e DataFrame bruto via api_utils
         df_raw = fetch_limtFull(BASE_URL=url, SIENGE_USERNAME=SIENGE_USERNAME, SIENGE_PASSWORD=SIENGE_PASSWORD, 
-                                module="bankMovement", json_path_env="JSON_PATH_BANKMOVEMENT", timeout=300)
+                                module="bankMovement", timeout=300)                                                         #, json_path_env="JSON_PATH_BANKMOVEMENT"
         if df_raw.empty:
             log_message("bankMovement", "❌ Nenhum dado processado para bankMovement.")
             return
