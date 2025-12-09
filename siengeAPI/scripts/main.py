@@ -5,6 +5,7 @@ from api_financialCategory import main as run_financial_category
 from api_customers import main as run_customers
 from api_outcome import main as run_outcome
 from api_bankMovement import main as run_bankMovement
+from api_income import main as run_income
 from mvw_atualizacao import refresh_views as run_mvw
 from BU_businessUnits import main as run_bu
 
@@ -65,6 +66,13 @@ def main():
         elapsed = time.time() - global_start
         log_message("bankMovement", f"❌ Erro inesperado: {e}")
         resumo.append({"module": "bankMovement", "status": "❌ erro", "elapsed": elapsed, "started_at": None, "rows": None})
+    # --- Executa income ---
+    try:
+        resumo.append(run_with_timing("income", run_income))
+    except Exception as e:
+        elapsed = time.time() - global_start
+        log_message("income", f"❌ Erro inesperado: {e}")
+        resumo.append({"module": "income", "status": "❌ erro", "elapsed": elapsed, "started_at": None, "rows": None})
     # --- Executa BU ---
     try:
         resumo.append(run_with_timing("BU_businessUnits", run_bu))
