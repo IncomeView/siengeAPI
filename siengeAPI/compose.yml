@@ -18,8 +18,6 @@ services:
     volumes:
       - ./scripts:/scripts
     command: python -u /scripts/api_customers.py
-#    depends_on:
-#      - sienge_main   # opcional: só sobe depois do principal
 
   api_financialcategory:
     profiles: ["isolated"]
@@ -29,8 +27,6 @@ services:
     volumes:
       - ./scripts:/scripts
     command: python -u /scripts/api_financialCategory.py
-#    depends_on:
-#      - sienge_main   # opcional: só sobe depois do principal
 
   api_outcome:
     profiles: ["isolated"]
@@ -41,8 +37,6 @@ services:
       - ./scripts:/scripts
       - "/mnt/c/Users/Moacir Faria/Olimpo Participacoes/OLP - CONTROLE/BASES TRABALHADAS/JSON:/scripts/JSON"
     command: python -u /scripts/api_outcome.py
-#    depends_on:
-#      - sienge_main   # opcional: só sobe depois do principal
 
   api_bankmovement:
     profiles: ["isolated"]
@@ -53,8 +47,6 @@ services:
       - ./scripts:/scripts
       - "/mnt/c/Users/Moacir Faria/Olimpo Participacoes/OLP - CONTROLE/BASES TRABALHADAS/JSON:/scripts/JSON"
     command: python -u /scripts/api_bankMovement.py
-#    depends_on:
-#      - sienge_main   # opcional: só sobe depois do principal
 
   api_income:
     profiles: ["isolated"]
@@ -65,20 +57,16 @@ services:
       - ./scripts:/scripts
       - "/mnt/c/Users/Moacir Faria/Olimpo Participacoes/OLP - CONTROLE/BASES TRABALHADAS/JSON:/scripts/JSON"
     command: python -u /scripts/api_income.py
-#    depends_on:
-#      - sienge_main   # opcional: só sobe depois do principal
 
-  sienge_excel_bu:
+  api_businessunits:
     profiles: ["isolated"]
     build: .
-    container_name: sienge_excel_bu
+    container_name: api_businessunits
     env_file: scripts/.env
     volumes:
       - ./scripts:/scripts   # pasta com Logs.xlsx e .env
       - "/mnt/c/Users/Moacir Faria/Olimpo Participacoes/OLP - CONTROLE/ANALISES/bancos_dados/Logs.xlsx:/scripts/Logs.xlsx"
-    command: python -u /scripts/BU_businessUnits.py
-#    depends_on:
-#      - sienge_main   # opcional: só sobe depois do principal
+    command: python -u /scripts/api_businessUnits.py
 
   sienge_refresh_mvw:
     profiles: ["isolated"]
@@ -88,5 +76,3 @@ services:
     volumes:
       - ./scripts:/scripts
     command: python -u /scripts/mvw_atualizacao.py
-#    depends_on:
-#      - sienge_main   # opcional: só sobe depois do principal

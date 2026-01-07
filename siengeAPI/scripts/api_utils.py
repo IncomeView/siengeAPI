@@ -18,6 +18,7 @@ def fetch_limt200(BASE_URL, SIENGE_USERNAME, SIENGE_PASSWORD, limit=200, module=
     Retorna um DataFrame com todos os registros.
     """
     all_data, offset = [], 0
+    log_message(module, "Download API ")
     while True:
         url = f"{BASE_URL}?limit={limit}&offset={offset}"
         try:
@@ -54,6 +55,7 @@ def fetch_limtFull(BASE_URL, SIENGE_USERNAME, SIENGE_PASSWORD, module="apiCall",
     offset = 0
 
     try:
+        log_message(module, "Download API ")
         log_message(module, f"🔗 Conexão com API {module} ... offset={offset}")
         response = requests.get(f"{BASE_URL}&offset={offset}", auth=(SIENGE_USERNAME, SIENGE_PASSWORD), timeout=timeout)
         response.raise_for_status()

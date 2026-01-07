@@ -25,6 +25,7 @@ def build_url(subdomain: str, start_date: str, end_date: str) -> str:
     Retorna tuple de DataFrames normalizados.
     """
 def normalize_bankMovement(df_raw: pd.DataFrame):
+    log_message("bankMovement", "Normalização inciada...")
     if df_raw is None or df_raw.empty:
         return tuple(pd.DataFrame([]) for _ in range(4))
 

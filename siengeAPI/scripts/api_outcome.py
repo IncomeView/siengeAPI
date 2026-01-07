@@ -28,6 +28,7 @@ def build_url(subdomain: str, start_date: str, end_date: str, selection_type: st
     Retorna tuple de DataFrames normalizados.
     """
 def normalize_outcome(df_raw: pd.DataFrame):
+    log_message("Outcome", "Normalização inciada...")
     if df_raw is None or df_raw.empty:
         return tuple(pd.DataFrame([]) for _ in range(8))
 

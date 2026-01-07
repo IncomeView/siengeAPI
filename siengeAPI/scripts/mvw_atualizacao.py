@@ -12,6 +12,7 @@ MATERIALIZED_VIEWS = [
     '"sienge"."mvw_Companies"',
     '"sienge"."mvw_inicializacaoSaldo"',
     '"sienge"."mvw_Date"',
+    '"sienge"."mvw_businessUnits"',
 #    '"public"."mvw_contasReceber"'
 ]
 
