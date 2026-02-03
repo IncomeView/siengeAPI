@@ -3,6 +3,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from api_financialCategory import main as run_financial_category
 from api_customers import main as run_customers
+from api_creditors import main as run_creditors
 from api_outcome import main as run_outcome
 from api_bankMovement import main as run_bankMovement
 from api_income import main as run_income
@@ -39,12 +40,12 @@ def main():
     global_start = time.time()
     resumo = []
     # --- Executa financialCategory ---
-    try:
-        resumo.append(run_with_timing("financialCategory", run_financial_category))
-    except Exception as e:
-        elapsed = time.time() - global_start
-        log_message("financialCategory", f"❌ Erro inesperado: {e}")
-        resumo.append({"module": "financialCategory", "status": "❌ erro", "elapsed": elapsed, "started_at": None, "rows": None})
+#    try:
+#        resumo.append(run_with_timing("financialCategory", run_financial_category))
+#    except Exception as e:
+#        elapsed = time.time() - global_start
+#        log_message("financialCategory", f"❌ Erro inesperado: {e}")
+#        resumo.append({"module": "financialCategory", "status": "❌ erro", "elapsed": elapsed, "started_at": None, "rows": None})
     # --- Executa customers ---
     try:
         resumo.append(run_with_timing("customers", run_customers))
@@ -52,6 +53,13 @@ def main():
         elapsed = time.time() - global_start
         log_message("customers", f"❌ Erro inesperado: {e}")
         resumo.append({"module": "customers", "status": "❌ erro", "elapsed": elapsed, "started_at": None, "rows": None})
+    # --- Executa creditors ---
+    try:
+        resumo.append(run_with_timing("creditors", run_creditors))
+    except Exception as e:
+        elapsed = time.time() - global_start
+        log_message("creditors", f"❌ Erro inesperado: {e}")
+        resumo.append({"module": "creditors", "status": "❌ erro", "elapsed": elapsed, "started_at": None, "rows": None})
     # --- Executa outcome ---
     try:
         resumo.append(run_with_timing("outcome", run_outcome))
@@ -81,20 +89,22 @@ def main():
         log_message("api_businessUnits", f"❌ Erro inesperado: {e}")
         resumo.append({"module": "api_businessUnits", "status": "❌ erro", "elapsed": elapsed, "started_at": None, "rows": None})
     # --- Executa MVW ---
-    try:
-        resumo.append(run_with_timing("mvw_atualizacao", run_mvw))
-    except Exception as e:
-        elapsed = time.time() - global_start
-        log_message("mvw_atualizacao", f"❌ Erro inesperado: {e}")
-        resumo.append({"module": "mvw_atualizacao", "status": "❌ erro", "elapsed": elapsed, "started_at": None, "rows": None})
+#    try:
+#        resumo.append(run_with_timing("mvw_atualizacao", run_mvw))
+#    except Exception as e:
+#        elapsed = time.time() - global_start
+#        log_message("mvw_atualizacao", f"❌ Erro inesperado: {e}")
+#        resumo.append({"module": "mvw_atualizacao", "status": "❌ erro", "elapsed": elapsed, "started_at": None, "rows": None})
 
     # --- Resumo final ---
     elapsed_total = time.time() - global_start
     log_message("sienge_main", "Resumo da execução main:")
+    """
     for r in resumo:
         log_message(
             "sienge_main",
             f"{r['module']} - status: {r['status']} - início: {r['started_at']} - tempo: {r['elapsed']:.2f}s - linhas: {r['rows']}")
+    """
     log_message("sienge_main", f"Execução global concluída em {elapsed_total:.2f}s")
 
 if __name__ == "__main__":

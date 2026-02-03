@@ -10,6 +10,15 @@ services:
       - "/mnt/c/Users/Moacir Faria/Olimpo Participacoes/OLP - CONTROLE/BASES TRABALHADAS/JSON:/scripts/JSON"
     command: python -u /scripts/main.py
 
+  api_anapro:
+    profiles: ["isolated"]
+    build: .
+    container_name: api_anapro
+    env_file: scripts/.env
+    volumes:
+      - ./scripts:/scripts
+    command: python -u /scripts/api_anapro.py
+
   api_customers:
     profiles: ["isolated"]
     build: .
@@ -17,7 +26,36 @@ services:
     env_file: scripts/.env
     volumes:
       - ./scripts:/scripts
+      - "/mnt/c/Users/Moacir Faria/Olimpo Participacoes/OLP - CONTROLE/BASES TRABALHADAS/JSON:/scripts/JSON"
     command: python -u /scripts/api_customers.py
+
+  api_creditors:
+    profiles: ["isolated"]
+    build: .
+    container_name: api_creditors
+    env_file: scripts/.env
+    volumes:
+      - ./scripts:/scripts
+      - "/mnt/c/Users/Moacir Faria/Olimpo Participacoes/OLP - CONTROLE/BASES TRABALHADAS/JSON:/scripts/JSON"
+    command: python -u /scripts/api_creditors.py
+
+  api_bearers:
+    profiles: ["isolated"]
+    build: .
+    container_name: api_bearers
+    env_file: scripts/.env
+    volumes:
+      - ./scripts:/scripts
+    command: python -u /scripts/api_bearers.py
+
+  api_costcenters:
+    profiles: ["isolated"]
+    build: .
+    container_name: api_costcenters
+    env_file: scripts/.env
+    volumes:
+      - ./scripts:/scripts
+    command: python -u /scripts/api_costCenters.py
 
   api_financialcategory:
     profiles: ["isolated"]
@@ -27,6 +65,42 @@ services:
     volumes:
       - ./scripts:/scripts
     command: python -u /scripts/api_financialCategory.py
+
+  api_units:
+    profiles: ["isolated"]
+    build: .
+    container_name: api_units
+    env_file: scripts/.env
+    volumes:
+      - ./scripts:/scripts
+    command: python -u /scripts/api_units.py
+
+  api_checkingaccounts:
+    profiles: ["isolated"]
+    build: .
+    container_name: api_checkingaccounts
+    env_file: scripts/.env
+    volumes:
+      - ./scripts:/scripts
+    command: python -u /scripts/api_checkingAccounts.py
+
+  api_companies:
+    profiles: ["isolated"]
+    build: .
+    container_name: api_companies
+    env_file: scripts/.env
+    volumes:
+      - ./scripts:/scripts
+    command: python -u /scripts/api_companies.py
+
+  api_salescontracts:
+    profiles: ["isolated"]
+    build: .
+    container_name: api_salescontracts
+    env_file: scripts/.env
+    volumes:
+      - ./scripts:/scripts
+    command: python -u /scripts/api_salesContracts.py
 
   api_outcome:
     profiles: ["isolated"]

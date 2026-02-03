@@ -7,13 +7,10 @@ from db_utils import get_engine
 
 # lista das materialized views que você quer atualizar
 MATERIALIZED_VIEWS = [
-    '"sienge"."mvw_mainUnits"',
-    '"sienge"."mvw_salesContract"',
-    '"sienge"."mvw_Companies"',
     '"sienge"."mvw_inicializacaoSaldo"',
     '"sienge"."mvw_Date"',
-    '"sienge"."mvw_businessUnits"',
-#    '"public"."mvw_contasReceber"'
+    '"sienge"."mvw_saldo_billId"',
+    '"sienge"."mvw_saldo_idDocument"'
 ]
 
 def log_message(module: str, message: str):

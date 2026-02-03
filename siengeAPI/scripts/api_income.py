@@ -76,7 +76,7 @@ def normalize_income(df_raw: pd.DataFrame):
 
     # ajustes finais
     base_IN = base_IN.drop(columns=['receipts', 'receiptsCategories'])
-    receipts = receipts.drop(columns=['bankMovements'])
+    receipts = receipts.drop(columns=['bankMovements', 'creditDate'])
     bankMovements_r = bankMovements_r.drop(columns=['financialCategories'])
     elapsed = time.time() - start_time
     log_message("income", f"✅ Normalização: ok | Tempo: {elapsed:.2f}s")
@@ -95,8 +95,8 @@ def save_income_tables(engine, dfs, module="income"):
         "IncomeCategoriesReceipts",
         "IncomeReceipts",
         "IncomeReceiptsBankMovements",
-        "IncomeReceiptsBankMovementsFinancialCategories"]
-
+        "IncomeReceiptsBankMovementsFinancialCategories"
+    ]
     resumo = []
     with engine.begin() as conn:
         for name, df in zip(names, dfs):
@@ -131,16 +131,36 @@ def main():
             end_date="2065-01-01",
             selection_type="D")
         # 2) Busca JSON e DataFrame bruto via api_utils
-        df_raw = fetch_limtFull(BASE_URL=url, SIENGE_USERNAME=SIENGE_USERNAME, SIENGE_PASSWORD=SIENGE_PASSWORD, 
-                                module="income", timeout=300)                                                           #, json_path_env="JSON_PATH_INCOME"
+        df_raw = fetch_limtFull(
+            BASE_URL=url,
+            SIENGE_USERNAME=SIENGE_USERNAME,
+            SIENGE_PASSWORD=SIENGE_PASSWORD,
+            module="income",
+            timeout=300
+        )
         if df_raw.empty:
             log_message("income", "❌ Nenhum dado processado para income.")
             return
         # 3) Normaliza
         dfs = normalize_income(df_raw)
+        # 3.1) Salva DataFrames finais localmente em Parquet
+        df_names = [
+            "Income",
+            "IncomeCategoriesReceipts",
+            "IncomeReceipts",
+            "IncomeReceiptsBankMovements",
+            "IncomeReceiptsBankMovementsFinancialCategories"
+        ]
+        for name, df in zip(df_names, dfs):
+            if isinstance(df, pd.DataFrame) and not df.empty:
+                df.to_parquet(f"/scripts/JSON/{name}.parquet", index=False)
+                log_message("income", f"💾 Arquivo salvo: .parquet ({len(df)} linhas)")
+            else:
+                log_message("income", f"⚠️ DataFrame vazio, não salvo: {name}")
+        # 4) Salva no banco
+        log_message("income", "🔗 Início do upload para os dataframes income")
         engine = get_engine()
         resumo = save_income_tables(engine, dfs)
-
         # 5) Resumo
         elapsed = time.time() - global_start
         status_global = "✅ ok" if all(r["status"] == "✅ ok" for r in resumo) else "⚠️ parcial"

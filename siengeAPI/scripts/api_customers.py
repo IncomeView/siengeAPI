@@ -12,29 +12,36 @@ def log_message(module: str, message: str):
     print(f"[{timestamp}] [{module}] {message}", flush=True)
 
 def normalize_customers(df):
-    """Normaliza os campos aninhados (phones, addresses, spouse)."""
-    # phones
+    df = df.copy()
+    # --- PHONES ---
     df = df.explode("phones").reset_index(drop=True)
-    df = df.drop_duplicates(subset=["id"]).reset_index(drop=True)
+    df["phones"] = df["phones"].apply(lambda x: x if isinstance(x, dict) else {})
     phones_df = pd.json_normalize(df["phones"]).add_prefix("phone_")
-    phones_df = phones_df.loc[df.index].reset_index(drop=True)
-    df_1 = pd.concat([df, phones_df], axis=1)
-    # addresses
+    df_1 = pd.concat([df.reset_index(drop=True), phones_df.reset_index(drop=True)], axis=1)
+    df_1 = df_1.drop_duplicates(subset=["id"]).reset_index(drop=True)
+    # --- ADDRESSES ---
     df = df_1.explode("addresses").reset_index(drop=True)
-    df = df.drop_duplicates(subset=["id"]).reset_index(drop=True)
+    df["addresses"] = df["addresses"].apply(lambda x: x if isinstance(x, dict) else {})
     addresses_df = pd.json_normalize(df["addresses"])
-    addresses_df = addresses_df.loc[df.index].reset_index(drop=True)
-    df_2 = pd.concat([df, addresses_df], axis=1)
-    # spouse
+    df_2 = pd.concat([df.reset_index(drop=True), addresses_df.reset_index(drop=True)], axis=1)
+    df_2 = df_2.drop_duplicates(subset=["id"]).reset_index(drop=True)
+    # --- SPOUSE ---
     df = df_2.copy()
-    spouse = df["spouse"].apply(lambda x: x if isinstance(x, dict) else {})
-    spouse_df = pd.json_normalize(spouse)[["cpf", "name", "email", "sex", "birthDate", "cellphoneNumber"]].add_prefix("spouse_")
+    df["spouse"] = df["spouse"].apply(lambda x: x if isinstance(x, dict) else {})
+    spouse_df = pd.json_normalize(df["spouse"])[
+        ["cpf", "name", "email", "sex", "birthDate", "cellphoneNumber"]
+    ].add_prefix("spouse_")
     df_3 = pd.concat([df, spouse_df], axis=1)
 
-    df_3["familyIncome"] = df_3["familyIncome"].apply(lambda x: ",".join(map(str, x)) if isinstance(x, list) else x)
-    cols =["id","name","cpf","cnpj","numberIdentityCard","foreigner","personType","sex","nationality","birthDate","profession","civilStatus","matrimonialRegime","email",
+    # familyIncome
+    df_3["familyIncome"] = df_3["familyIncome"].apply(
+        lambda x: ",".join(map(str, x)) if isinstance(x, list) else x
+    )
+    cols = [
+        "id","name","cpf","cnpj","numberIdentityCard","foreigner","personType","sex","nationality","birthDate","profession","civilStatus","matrimonialRegime","email",
         "phone_type","phone_idd","phone_number","phone_note","createdAt","mailingAddress","type","streetName","number","complement","neighborhood","city","state","zipCode",
-        "spouse_name","spouse_cpf","spouse_sex","spouse_birthDate","spouse_email","spouse_cellphoneNumber","familyIncome"]
+        "spouse_name","spouse_cpf","spouse_sex","spouse_birthDate","spouse_email","spouse_cellphoneNumber","familyIncome"
+    ]
     return df_3.filter(items=cols)
 
 def main():
@@ -48,6 +55,11 @@ def main():
             log_message("sienge_customers", "❌ Nenhum dado processado para clientes.")
             return
         df_final["upDate"] = datetime.now(ZoneInfo("America/Sao_Paulo"))
+        # --- Salva Parquet localmente ---
+        parquet_path = "/scripts/JSON/customers.parquet"
+        df_final.to_parquet(parquet_path, index=False)
+        log_message("customers", f"💾 Parquet salvo em: {parquet_path} ({len(df_final)} linhas)")
+        # --- Salva no banco ---
         save_dataframe(df_final, "Customers", POSTGRES_SCHEMA)
 
         # --- Resumo final ---

@@ -168,13 +168,37 @@ def main():
             with_bank_movements=True)
 
         # 2) Busca JSON e DataFrame bruto via api_utils
-        df_raw = fetch_limtFull(BASE_URL=url, SIENGE_USERNAME=SIENGE_USERNAME, SIENGE_PASSWORD=SIENGE_PASSWORD, 
-                                module="outcome", timeout=300)                                                              #, json_path_env="JSON_PATH_OUTCOME"
+        df_raw = fetch_limtFull(
+            BASE_URL=url,
+            SIENGE_USERNAME=SIENGE_USERNAME,
+            SIENGE_PASSWORD=SIENGE_PASSWORD,
+            module="outcome",
+            timeout=300
+        )
         if df_raw.empty:
             log_message("outcome", "❌ Nenhum dado processado para Outcome.")
             return
         # 3) Normaliza
         dfs = normalize_outcome(df_raw)
+        # 3.1) Salva DataFrames finais localmente em Parquet
+        df_names = [
+            "outcome",
+            "outcomeCategoriesPayments",
+            "outcomeAuthorizations",
+            "outcomeDepartamentsCosts",
+            "outcomeBuildingsCosts",
+            "outcomePayments",
+            "outcomePaymentsBankMovements",
+            "outcomePaymentsBankMovementsPaymentsCategories"
+        ]
+        for name, df in zip(df_names, dfs):
+            if isinstance(df, pd.DataFrame) and not df.empty:
+                df.to_parquet(f"/scripts/JSON/{name}.parquet", index=False)
+                log_message("outcome", f"💾 Arquivo salvo: .parquet ({len(df)} linhas)")
+            else:
+                log_message("outcome", f"⚠️ DataFrame vazio, não salvo: {name}")
+        # 4) Salva no banco
+        log_message("outcome", "🔗 Início do upload para os dataframes outcome")
         engine = get_engine()
         resumo = save_outcome_tables(engine, dfs)
 

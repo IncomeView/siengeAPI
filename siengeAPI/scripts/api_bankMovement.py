@@ -109,16 +109,35 @@ def main():
             start_date="2014-01-01",
             end_date=datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%Y-%m-%d"))
         # 2) Busca JSON e DataFrame bruto via api_utils
-        df_raw = fetch_limtFull(BASE_URL=url, SIENGE_USERNAME=SIENGE_USERNAME, SIENGE_PASSWORD=SIENGE_PASSWORD, 
-                                module="bankMovement", timeout=300)                                                         #, json_path_env="JSON_PATH_BANKMOVEMENT"
+        df_raw = fetch_limtFull(
+            BASE_URL=url,
+            SIENGE_USERNAME=SIENGE_USERNAME,
+            SIENGE_PASSWORD=SIENGE_PASSWORD,
+            module="bankMovement",
+            timeout=300
+        )
         if df_raw.empty:
             log_message("bankMovement", "❌ Nenhum dado processado para bankMovement.")
             return
         # 3) Normaliza
         dfs = normalize_bankMovement(df_raw)
+        # 3.1) Salva DataFrames finais localmente em Parquet
+        df_names = [
+            "bankMovement",
+            "bankMovementFinancialCategories",
+            "bankMovementDepartamentCosts",
+            "bankMovementBuldingCosts"
+        ]
+        for name, df in zip(df_names, dfs):
+            if isinstance(df, pd.DataFrame) and not df.empty:
+                df.to_parquet(f"/scripts/JSON/{name}.parquet", index=False)
+                log_message("bankMovement", f"💾 Arquivo salvo: .parquet ({len(df)} linhas)")
+            else:
+                log_message("bankMovement", f"⚠️ DataFrame vazio, não salvo: {name}")
+        # 4) Salva no banco
+        log_message("bankMovement", "🔗 Início do upload para os dataframes bankMovement")
         engine = get_engine()
         resumo = save_bankMovement_tables(engine, dfs)
-
         # 5) Resumo
         elapsed = time.time() - global_start
         status_global = "✅ ok" if all(r["status"] == "✅ ok" for r in resumo) else "⚠️ parcial"

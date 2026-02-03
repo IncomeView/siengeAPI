@@ -1,7 +1,7 @@
 import time, requests, pandas as pd
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from db_utils import save_dataframe
+from db_utils import save_dataframe_insert
 from config import SIENGE_USERNAME, SIENGE_PASSWORD, POSTGRES_SCHEMA
 
 BASE_URL = "https://api.sienge.com.br/olimpo/public/api/v1/payment-categories"
@@ -34,7 +34,8 @@ def normalize_financialCategories(df):
     if df.empty:
         return df
     id_map = dict(zip(df["id"].astype(str), df["name"]))
-    expanded_rows = [_expand_row(r, id_map) for _, r in df[df["tpConta"] == "R"].iterrows()]
+    mask = df["tpConta"].isin(["R", "M"])
+    expanded_rows = [_expand_row(r, id_map) for _, r in df[mask].iterrows()]
     return pd.DataFrame(expanded_rows)
 
 def _expand_row(row, id_map):
@@ -64,7 +65,7 @@ def main():
         log_message("sienge_financialCategories", "❌ Nenhum dado processado para categorias financeiras.")
         return
     df_final["upDate"] = datetime.now(ZoneInfo("America/Sao_Paulo"))
-    save_dataframe(df_final, "FinancialCategories", POSTGRES_SCHEMA)
+    save_dataframe_insert(df_final, "FinancialCategories", POSTGRES_SCHEMA, pk_column="financialCategoryId")
 
     # --- Resumo final ---
     elapsed = time.time() - global_start
