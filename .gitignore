@@ -1,8 +1,0 @@
-# Ignorar arquivos temporários
-*.swp
-*.log
-.env
-__pycache__/
-
-# Ignorar dados do Docker
-db_data/
