@@ -7,10 +7,10 @@ from config import POSTGRES_SCHEMA
 
 ANAPRO_URL = "https://anapro-vendas-views-api.azurewebsites.net/views"
 ANAPRO_PARAMS = {
-    "token": "IyJYziEqRsg1",
-    "nome": "vwTabelaoUnidade",
-    "subscription-key": "ce2cee0473a84f4dbec57ef38b0bb45c"}
-ANAPRO_HEADERS = {"Authorization": "UksAO24kixbPPGFy0wqfT+fgn9TDOpg9Ws9krFC4nr/J9e3mIVQSBX0LspSu+l2CMHw4+ThdNrHehk5deJGwS8VisbsDrlaNifvr8BeSA+WxX1McY/T5NB3nNkS7Um8L"}
+    "token": "token",
+    "nome": "nomeTabela",
+    "subscription-key": "subscription"}
+ANAPRO_HEADERS = {"Authorization": "Authorization"}
 
 def log_message(module: str, message: str):
     timestamp = datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%Y-%m-%d %H:%M:%S")

@@ -1,0 +1,65 @@
+# ============================
+#   ARQUIVOS SENSÍVEIS
+# ============================
+.env
+*.env
+**/.env
+
+# ============================
+#   PYTHON
+# ============================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ============================
+#   VS CODE
+# ============================
+.vscode/
+.code-workspace
+
+# ============================
+#   DOCKER
+# ============================
+*.log
+docker-compose.override.yml
+
+# ============================
+#   AIRFLOW
+# ============================
+airflow/logs/
+airflow/plugins/
+airflow/airflow.db
+airflow/airflow.cfg
+airflow/.airflowenv
+
+# ============================
+#   PARQUET / DATA
+# ============================
+*.parquet
+*.csv
+*.xlsx
+*.json
+*.db
+*.sqlite
+*.sqlite3
+
+# Diretórios de dados persistentes
+postgres/
+postgres/data/
+**/data/
+
+# ============================
+#   SISTEMA / WSL
+# ============================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+scripts/Logs.xlsx
+*.xlsx
